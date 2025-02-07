@@ -8,11 +8,12 @@ import googlemaps
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+from decouple import config
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from decouple import config
+from django.db.models import Max, Min
 
-from carnaval_map.models import Bloco, RawBloco
+from carnaval_map.models import Bloco, City, RawBloco
 
 # from get_coords import process_addresses
 
@@ -290,6 +291,45 @@ def process_addresses(delay=1):
     print("✅ Processamento concluído!")
 
 
+def update_city_coordinates():
+    """Lê os blocos cadastrados e calcula as coordenadas médias para cada cidade."""
+
+    cities = Bloco.objects.values_list("city", flat=True).distinct()
+
+    for city in cities:
+        print(f"Processando cidade: {city}")
+
+        min_lat = Bloco.objects.filter(city=city).aggregate(Min("latitude"))[
+            "latitude__min"
+        ]
+        max_lat = Bloco.objects.filter(city=city).aggregate(Max("latitude"))[
+            "latitude__max"
+        ]
+        min_lon = Bloco.objects.filter(city=city).aggregate(Min("longitude"))[
+            "longitude__min"
+        ]
+        max_lon = Bloco.objects.filter(city=city).aggregate(Max("longitude"))[
+            "longitude__max"
+        ]
+
+        if None in (min_lat, max_lat, min_lon, max_lon):
+            print(f"Pulando {city}, pois não há coordenadas suficientes.")
+            continue
+
+        avg_lat = (min_lat + max_lat) / 2
+        avg_lon = (min_lon + max_lon) / 2
+
+        city_obj, created = City.objects.update_or_create(
+            name=city,
+            defaults={"avg_latitude": avg_lat, "avg_longitude": avg_lon},
+        )
+
+        if created:
+            print(f"📍 Cidade adicionada: {city} ({avg_lat}, {avg_lon})")
+        else:
+            print(f"🔄 Cidade atualizada: {city} ({avg_lat}, {avg_lon})")
+
+
 class Command(BaseCommand):
     help = "Cria objetos no modelo Locations a partir de um arquivo CSV"
 
@@ -299,4 +339,5 @@ class Command(BaseCommand):
             process_links(df)
 
         process_addresses()
+        update_city_coordinates()
         print("Done")
