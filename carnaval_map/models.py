@@ -55,3 +55,14 @@ class Bloco(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.city}"
+
+
+class City(models.Model):
+    """Armazena informações sobre a cidade e suas coordenadas médias."""
+    
+    name = models.CharField(max_length=100, unique=True)
+    avg_latitude = models.FloatField(blank=True, null=True)
+    avg_longitude = models.FloatField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.avg_latitude}, {self.avg_longitude})"
