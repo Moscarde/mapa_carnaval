@@ -12,8 +12,8 @@ document.addEventListener("DOMContentLoaded", () => {
 	const cities_coords = JSON.parse(document.getElementById("cities_coords").textContent);
 
 	let markers = [];
-	let allBlocos = []; // Todos os blocos armazenados
-	let displayedCount = 5; // Quantidade inicial de blocos exibidos
+	let allBlocos = [];
+	let displayedCount = 5;
 
 	function clearMarkers() {
 		markers.forEach((marker) => map.removeLayer(marker));
@@ -44,7 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
 			const blocoCard = document.createElement("div");
 			blocoCard.classList.add("bloco-card");
 
-			// Formatando a data para "dd/mm (DD)"
 			const eventDate = new Date(bloco.event_date);
 			const formattedDate = eventDate.toLocaleDateString("pt-BR", {
 				day: "2-digit",
@@ -80,15 +79,12 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 	}
 
-	// Carregar todos os blocos ao iniciar
 	const blocos = JSON.parse(document.getElementById("blocos-json").textContent);
 	loadBlocos(blocos);
 
-	// Atualiza os valores do select de datas
 	function updateDateFilter(dates) {
 		const dateSelect = document.getElementById("date");
 		dateSelect.innerHTML = '<option value="">Todas as datas</option>';
-
 		dates.forEach(([value, label]) => {
 			const option = document.createElement("option");
 			option.value = value;
@@ -97,7 +93,17 @@ document.addEventListener("DOMContentLoaded", () => {
 		});
 	}
 
-	// Listener para filtro de cidade
+	function updateNeighborhoodFilter(neighborhoods) {
+		const neighborhoodSelect = document.getElementById("neighborhood");
+		neighborhoodSelect.innerHTML = '<option value="">Todos os bairros</option>';
+		neighborhoods.forEach((neighborhood) => {
+			const option = document.createElement("option");
+			option.value = neighborhood;
+			option.textContent = neighborhood;
+			neighborhoodSelect.appendChild(option);
+		});
+	}
+
 	const citySelect = document.getElementById("city");
 	citySelect.addEventListener("change", (event) => {
 		const selectedCity = event.target.value;
@@ -109,7 +115,6 @@ document.addEventListener("DOMContentLoaded", () => {
 			map.setView([-22.85, -43.28], 10);
 		}
 
-		// Fazer requisição AJAX para buscar blocos e datas filtradas
 		fetch(`/filter-blocos/?city=${selectedCity}`)
 			.then((response) => response.json())
 			.then((data) => {
@@ -119,29 +124,39 @@ document.addEventListener("DOMContentLoaded", () => {
 				if (data.dates) {
 					updateDateFilter(data.dates);
 				}
+				if (data.neighborhoods) {
+					updateNeighborhoodFilter(data.neighborhoods);
+				}
 			})
 			.catch((error) => console.error("Erro na requisição:", error));
 	});
 
-	// Listener para filtro de data
+	const neighborhoodSelect = document.getElementById("neighborhood");
+	neighborhoodSelect.addEventListener("change", (event) => {
+		const selectedNeighborhood = event.target.value;
+		const selectedCity = citySelect.value;
+
+		fetch(`/filter-blocos/?city=${selectedCity}&neighborhood=${selectedNeighborhood}`)
+			.then((response) => response.json())
+			.then((data) => {
+				if (data.blocos) {
+					loadBlocos(data.blocos);
+				}
+			})
+			.catch((error) => console.error("Erro na requisição:", error));
+	});
+
 	const dateSelect = document.getElementById("date");
 	dateSelect.addEventListener("change", (event) => {
 		const selectedDate = event.target.value;
 		const selectedCity = citySelect.value;
+		const selectedNeighborhood = neighborhoodSelect.value;
 
-		if (!selectedDate) {
-			fetch(`/filter-blocos/?city=${selectedCity}`)
-				.then((response) => response.json())
-				.then((data) => {
-					if (data.blocos) {
-						loadBlocos(data.blocos);
-					}
-				})
-				.catch((error) => console.error("Erro na requisição:", error));
-			return;
-		}
+		let url = `/filter-blocos/?city=${selectedCity}`;
+		if (selectedNeighborhood) url += `&neighborhood=${selectedNeighborhood}`;
+		if (selectedDate) url += `&date=${selectedDate}`;
 
-		fetch(`/filter-blocos/?city=${selectedCity}&date=${selectedDate}`)
+		fetch(url)
 			.then((response) => response.json())
 			.then((data) => {
 				if (data.blocos) {

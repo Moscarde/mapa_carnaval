@@ -45,21 +45,22 @@ class CarnavalMapView(View):
         return render(request, "carnaval_map/index.html", context)
 
 
-from django.db.models import F
-from django.http import JsonResponse
 
 
 class FilterBlocosView(View):
     def get(self, request):
         city = request.GET.get("city", "")
         date = request.GET.get("date", "")
+        neighborhood = request.GET.get("neighborhood", "")
 
-        # Filtra blocos pela cidade, se uma cidade for selecionada
         blocos_query = Bloco.objects.all()
+
         if city:
             blocos_query = blocos_query.filter(city=city)
         if date:
             blocos_query = blocos_query.filter(event_date=date)
+        if neighborhood:
+            blocos_query = blocos_query.filter(neighborhood=neighborhood)
 
         blocos = list(
             blocos_query.values(
@@ -73,11 +74,15 @@ class FilterBlocosView(View):
                 "latitude",
                 "longitude",
                 "neighborhood",
+                "ticket_url",
             )
         )
 
-        # Pegando apenas as datas disponíveis na cidade selecionada
+        # Pegando as datas disponíveis na cidade selecionada
         dates = sorted(blocos_query.values_list("event_date", flat=True).distinct())
         dates = [(date, date.strftime("%d/%m/%Y")) for date in dates]
 
-        return JsonResponse({"blocos": blocos, "dates": dates})
+        # Pegando os bairros disponíveis na cidade selecionada
+        neighborhoods = sorted(blocos_query.values_list("neighborhood", flat=True).distinct())
+
+        return JsonResponse({"blocos": blocos, "dates": dates, "neighborhoods": neighborhoods})
