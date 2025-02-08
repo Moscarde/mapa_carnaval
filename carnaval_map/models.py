@@ -11,6 +11,7 @@ class RawBloco(models.Model):
     ticket_info = models.CharField(max_length=50, blank=True, null=True)
     ticket_url = models.URLField(blank=True, null=True)
     address = models.CharField(max_length=255)  # Endereço textual
+    neighborhood = models.CharField(max_length=100, blank=True, null=True)
     address_gmaps_url = models.URLField(blank=True, null=True)
     event_page_url = models.URLField(blank=True, null=True)
     event_date = models.DateField(blank=True, null=True)
@@ -39,6 +40,7 @@ class Bloco(models.Model):
     ticket_info = models.CharField(max_length=50, blank=True, null=True)
     ticket_url = models.URLField(blank=True, null=True)
     address = models.CharField(max_length=255)
+    neighborhood = models.CharField(max_length=100, blank=True, null=True)
     address_gmaps_url = models.URLField(blank=True, null=True)
     event_page_url = models.URLField(blank=True, null=True)
 
