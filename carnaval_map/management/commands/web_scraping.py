@@ -1,6 +1,7 @@
 # %%
 import os
 import time
+import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 
@@ -180,6 +181,9 @@ def fetch_event_page(city, url):
         )
         data["event_time"] = data["event_time"].split(" ")[0]
 
+        match = re.search(r" - ([^-\n]+)$", data["subtitle"])
+        data["neighborhood"] = match.group(1).strip()
+
         return data
 
     except Exception as e:
@@ -273,6 +277,7 @@ def process_addresses(delay=1):
                 ticket_info=raw_bloco.ticket_info,
                 ticket_url=raw_bloco.ticket_url,
                 address=raw_bloco.address,
+                neighborhood=raw_bloco.neighborhood,
                 address_gmaps_url=raw_bloco.address_gmaps_url,
                 event_page_url=raw_bloco.event_page_url,
                 event_date=raw_bloco.event_date,
