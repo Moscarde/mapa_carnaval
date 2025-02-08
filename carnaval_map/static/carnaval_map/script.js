@@ -1,5 +1,3 @@
-console.log("Olá mundo!");
-
 document.addEventListener("DOMContentLoaded", () => {
 	function createMap(center, zoom) {
 		const map = L.map("map").setView(center, zoom);
@@ -14,14 +12,19 @@ document.addEventListener("DOMContentLoaded", () => {
 	const cities_coords = JSON.parse(document.getElementById("cities_coords").textContent);
 
 	let markers = [];
+	let allBlocos = []; // Todos os blocos armazenados
+	let displayedCount = 5; // Quantidade inicial de blocos exibidos
 
 	function clearMarkers() {
-		markers.forEach(marker => map.removeLayer(marker));
+		markers.forEach((marker) => map.removeLayer(marker));
 		markers = [];
 	}
 
 	function loadBlocos(blocos) {
 		clearMarkers();
+		allBlocos = blocos;
+		displayedCount = 5;
+		renderBlocos();
 		blocos.forEach((bloco) => {
 			const marker = L.marker([bloco.latitude, bloco.longitude]).addTo(map);
 			marker.bindPopup(`
@@ -32,8 +35,53 @@ document.addEventListener("DOMContentLoaded", () => {
 		});
 	}
 
+	function renderBlocos() {
+		const blocosContainer = document.getElementById("blocos");
+		blocosContainer.innerHTML = "";
+
+		const blocosToShow = allBlocos.slice(0, displayedCount);
+		blocosToShow.forEach((bloco) => {
+			const blocoCard = document.createElement("div");
+			blocoCard.classList.add("bloco-card");
+
+			// Formatando a data para "dd/mm (DD)"
+			const eventDate = new Date(bloco.event_date);
+			const formattedDate = eventDate.toLocaleDateString("pt-BR", {
+				day: "2-digit",
+				month: "2-digit"
+			});
+			const weekDay = eventDate.toLocaleDateString("pt-BR", { weekday: "short" });
+
+			blocoCard.innerHTML = `
+                <div class="bloco-card-container">
+                    <div class="bloco-card-date">
+                        <span>${formattedDate}</span>
+                        <span>(${bloco.event_day || weekDay})</span>
+                    </div>
+                    <div class="bloco-card-details">
+                        <h3>${bloco.name}</h3>
+                        <p><strong>${bloco.neighborhood || bloco.city}</strong> - ${bloco.event_time || "Horário não informado"}</p>
+                        <a href="${bloco.ticket_url || "#"}" target="_blank">Site Oficial</a>
+                    </div>
+                </div>
+            `;
+			blocosContainer.appendChild(blocoCard);
+		});
+
+		if (displayedCount < allBlocos.length) {
+			const loadMoreButton = document.createElement("button");
+			loadMoreButton.textContent = "Carregar Mais";
+			loadMoreButton.classList.add("load-more");
+			loadMoreButton.addEventListener("click", () => {
+				displayedCount += 5;
+				renderBlocos();
+			});
+			blocosContainer.appendChild(loadMoreButton);
+		}
+	}
+
 	// Carregar todos os blocos ao iniciar
-	const blocos = JSON.parse(document.getElementById("blocos").textContent);
+	const blocos = JSON.parse(document.getElementById("blocos-json").textContent);
 	loadBlocos(blocos);
 
 	// Atualiza os valores do select de datas
@@ -63,8 +111,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		// Fazer requisição AJAX para buscar blocos e datas filtradas
 		fetch(`/filter-blocos/?city=${selectedCity}`)
-			.then(response => response.json())
-			.then(data => {
+			.then((response) => response.json())
+			.then((data) => {
 				if (data.blocos) {
 					loadBlocos(data.blocos);
 				}
@@ -72,7 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
 					updateDateFilter(data.dates);
 				}
 			})
-			.catch(error => console.error("Erro na requisição:", error));
+			.catch((error) => console.error("Erro na requisição:", error));
 	});
 
 	// Listener para filtro de data
@@ -83,23 +131,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		if (!selectedDate) {
 			fetch(`/filter-blocos/?city=${selectedCity}`)
-				.then(response => response.json())
-				.then(data => {
+				.then((response) => response.json())
+				.then((data) => {
 					if (data.blocos) {
 						loadBlocos(data.blocos);
 					}
 				})
-				.catch(error => console.error("Erro na requisição:", error));
+				.catch((error) => console.error("Erro na requisição:", error));
 			return;
 		}
 
 		fetch(`/filter-blocos/?city=${selectedCity}&date=${selectedDate}`)
-			.then(response => response.json())
-			.then(data => {
+			.then((response) => response.json())
+			.then((data) => {
 				if (data.blocos) {
 					loadBlocos(data.blocos);
 				}
 			})
-			.catch(error => console.error("Erro na requisição:", error));
+			.catch((error) => console.error("Erro na requisição:", error));
 	});
 });
