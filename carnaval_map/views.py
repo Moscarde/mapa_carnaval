@@ -23,15 +23,14 @@ class CarnavalMapView(View):
             "latitude",
             "longitude",
             "neighborhood",
-        )
+        ).order_by("event_date")
 
         cities_coords = City.objects.values("name", "avg_latitude", "avg_longitude")
 
         cities_ids = set(bloco["city"] for bloco in blocos)
         cities = [(city, city.replace("-", " ").title()) for city in cities_ids]
 
-        dates = set(bloco["event_date"] for bloco in blocos)  # preciso mudar isso
-        dates = sorted(dates)
+        dates = sorted(set(bloco["event_date"] for bloco in blocos))
         dates = [
             (date.strftime("%Y-%m-%d"), date.strftime("%d/%m/%Y")) for date in dates
         ]
@@ -43,8 +42,6 @@ class CarnavalMapView(View):
             "cities_coords": list(cities_coords),
         }
         return render(request, "carnaval_map/index.html", context)
-
-
 
 
 class FilterBlocosView(View):
@@ -83,6 +80,10 @@ class FilterBlocosView(View):
         dates = [(date, date.strftime("%d/%m/%Y")) for date in dates]
 
         # Pegando os bairros disponíveis na cidade selecionada
-        neighborhoods = sorted(blocos_query.values_list("neighborhood", flat=True).distinct())
+        neighborhoods = sorted(
+            blocos_query.values_list("neighborhood", flat=True).distinct()
+        )
 
-        return JsonResponse({"blocos": blocos, "dates": dates, "neighborhoods": neighborhoods})
+        return JsonResponse(
+            {"blocos": blocos, "dates": dates, "neighborhoods": neighborhoods}
+        )
