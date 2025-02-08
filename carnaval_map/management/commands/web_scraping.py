@@ -181,8 +181,12 @@ def fetch_event_page(city, url):
         )
         data["event_time"] = data["event_time"].split(" ")[0]
 
-        match = re.search(r" - ([^-\n]+)$", data["subtitle"])
-        data["neighborhood"] = match.group(1).strip()
+        match = re.search(r"\d{2}/\d{2}/\d{4} - .*? - \d{2}:\d{2}\s*(.*)", data["subtitle"])
+        
+        if match:
+            data["neighborhood"] = match.group(1).strip()
+        else:
+            data["neighborhood"] = None
 
         return data
 
