@@ -1,8 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
+
 body {
     margin: 0;
     padding: 0;
-    background-color: #e42f27;
-    font-family: "Londrina Solid","Nunito Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+    background-color: #00548A;
+    color: #F5F3C6;
+
+    font-family: "Londrina Solid", "Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 #map {
@@ -13,98 +17,103 @@ body {
 }
 
 .container__title {
-    color: #ffdc2e;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .container__title h1 {
-    font-size: calc(1.375rem + 1.5vw);
-    font-weight: 500;
+    font-family: "Bangers", serif;
+    color: #E656A5;
+    font-size: 4rem;
+    font-weight: 400;
     line-height: 1.2;
+    text-transform: uppercase;
+    
 }
 
 .container__title p {
-    font-size: calc(1rem + 0.5vw);
-    font-weight: 400;
+    font-family: "Bangers", serif;
+    font-size: 2rem;
+    font-style: normal;
+    font-weight: 200;
 }
 
 #blocos {
-	margin-top: 20px;
+    margin-top: 20px;
 }
 
 .bloco-card {
-	display: flex;
-	align-items: center;
-	border-radius: 8px;
-	overflow: hidden;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-	margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
 }
 
 .bloco-card-container {
-	display: flex;
-	width: 100%;
+    display: flex;
+    width: 100%;
 }
 
 .bloco-card-date {
-	width: 25%;
-	background: yellow;
-	color: red;
-	text-align: center;
-	padding: 10px;
-	font-size: 1.2em;
-	font-weight: bold;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
+    width: 25%;
+    background: yellow;
+    color: red;
+    text-align: center;
+    padding: 10px;
+    font-size: 1.2em;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .bloco-card-date span {
-	display: block;
+    display: block;
 }
 
 .bloco-card-details {
-	width: 75%;
-	background: white;
-	color: red;
-	padding: 10px 15px;
+    width: 75%;
+    background: white;
+    color: red;
+    padding: 10px 15px;
 }
 
 .bloco-card-details h3 {
-	margin: 0;
-	font-size: 1.1em;
+    margin: 0;
+    font-size: 1.1em;
 }
 
 .bloco-card-details p {
-	margin: 5px 0;
-	font-size: 0.9em;
+    margin: 5px 0;
+    font-size: 0.9em;
 }
 
 .bloco-card-details a {
-	display: inline-block;
-	margin-top: 5px;
-	color: red;
-	text-decoration: underline;
-	font-weight: bold;
+    display: inline-block;
+    margin-top: 5px;
+    color: red;
+    text-decoration: underline;
+    font-weight: bold;
 }
 
 .bloco-card-details a:hover {
-	color: darkred;
+    color: darkred;
 }
 
 .load-more {
-	display: block;
-	width: 100%;
-	padding: 10px;
-	background: #007bff;
-	color: white;
-	border: none;
-	cursor: pointer;
-	border-radius: 5px;
-	margin-top: 10px;
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px;
 }
 
 .load-more:hover {
-	background: #0056b3;
+    background: #0056b3;
 }
