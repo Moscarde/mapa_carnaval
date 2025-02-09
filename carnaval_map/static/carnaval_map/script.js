@@ -36,51 +36,83 @@ document.addEventListener("DOMContentLoaded", () => {
 	}
 
 	function renderBlocos() {
-		const blocosContainer = document.getElementById("blocos");
-		blocosContainer.innerHTML = "";
-
-		const blocosToShow = allBlocos.slice(0, displayedCount);
-		blocosToShow.forEach((bloco) => {
-			const blocoCard = document.createElement("div");
-			blocoCard.classList.add("bloco-card");
-
-			const eventDate = new Date(bloco.event_date);
-			const formattedDate = eventDate.toLocaleDateString("pt-BR", {
-				day: "2-digit",
-				month: "2-digit"
-			});
-			const weekDay = eventDate.toLocaleDateString("pt-BR", { weekday: "short" });
-
-			blocoCard.innerHTML = `
-                <div class="bloco-card-container">
-                    <div class="bloco-card-date">
-                        <span>${formattedDate}</span>
-                        <span>(${bloco.event_day || weekDay})</span>
+        const blocosContainer = document.getElementById("blocos");
+        blocosContainer.innerHTML = "";
+    
+        // Agrupa os blocos por data
+        const blocosByDate = {};
+        allBlocos.forEach((bloco) => {
+            const eventDate = new Date(bloco.event_date);
+            const formattedDate = eventDate.toLocaleDateString("pt-BR", {
+                day: "2-digit",
+                month: "2-digit"
+            });
+            const weekDay = eventDate.toLocaleDateString("pt-BR", { weekday: "long" });
+    
+            const dateKey = `${formattedDate} (${weekDay})`;
+    
+            if (!blocosByDate[dateKey]) {
+                blocosByDate[dateKey] = [];
+            }
+            blocosByDate[dateKey].push(bloco);
+        });
+    
+        let blocoCount = 0; // Contador de blocos exibidos
+    
+        // Itera sobre os dias e renderiza os blocos até o limite de displayedCount
+        Object.entries(blocosByDate).forEach(([dateKey, blocos]) => {
+            if (blocoCount >= displayedCount) return; // Para se já atingiu o limite
+    
+            const dayContainer = document.createElement("div");
+            dayContainer.classList.add("day-container");
+    
+            const dayHeader = document.createElement("h2");
+            dayHeader.textContent = dateKey;
+            dayContainer.appendChild(dayHeader);
+    
+            blocos.forEach((bloco) => {
+                if (blocoCount >= displayedCount) return; // Para se já atingiu o limite
+    
+                const blocoCard = document.createElement("div");
+                blocoCard.classList.add("bloco-card");
+    
+                blocoCard.innerHTML = `
+                    <div class="bloco-card-container">
+                        <div class="bloco-card-time">
+                            <span>${bloco.event_time || "Horário não informado"}</span>
+                        </div>
+                        <div class="bloco-card-details">
+                            <h3>${bloco.name}</h3>
+                            <p><strong>📍 ${bloco.neighborhood || bloco.city}</strong></p>
+                            <a href="${bloco.ticket_url || "#"}" target="_blank">Site Oficial</a>
+                        </div>
                     </div>
-                    <div class="bloco-card-details">
-                        <h3>${bloco.name}</h3>
-                        <p><strong>${bloco.neighborhood || bloco.city}</strong> - ${bloco.event_time || "Horário não informado"}</p>
-                        <a href="${bloco.ticket_url || "#"}" target="_blank">Site Oficial</a>
-                    </div>
-                </div>
-            `;
-			blocosContainer.appendChild(blocoCard);
-		});
-
-		if (displayedCount < allBlocos.length) {
-			const loadMoreButton = document.createElement("button");
-			loadMoreButton.textContent = "Carregar Mais";
-			loadMoreButton.classList.add("load-more");
-			loadMoreButton.addEventListener("click", () => {
-				displayedCount += 5;
-				renderBlocos();
-			});
-			blocosContainer.appendChild(loadMoreButton);
-		}
-	}
-
-	const blocos = JSON.parse(document.getElementById("blocos-json").textContent);
-	loadBlocos(blocos);
+                `;
+    
+                dayContainer.appendChild(blocoCard);
+                blocoCount++; // Incrementa o número de blocos exibidos
+            });
+    
+            blocosContainer.appendChild(dayContainer);
+        });
+    
+        // Botão "Carregar Mais"
+        if (blocoCount < allBlocos.length) {
+            const loadMoreButton = document.createElement("button");
+            loadMoreButton.textContent = "Carregar Mais";
+            loadMoreButton.classList.add("load-more");
+            loadMoreButton.addEventListener("click", () => {
+                displayedCount += 5; // Carrega mais 5 blocos (e não mais dias)
+                renderBlocos();
+            });
+            blocosContainer.appendChild(loadMoreButton);
+        }
+    }
+    
+    const blocos = JSON.parse(document.getElementById("blocos-json").textContent);
+    loadBlocos(blocos);
+    
+    
 
 	function updateDateFilter(dates) {
 		const dateSelect = document.getElementById("date");
