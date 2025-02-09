@@ -20,62 +20,94 @@ document.addEventListener("DOMContentLoaded", () => {
 		markers = [];
 	}
 
-	function loadBlocos(blocos) {
+    function loadBlocos(blocos) {
+        allBlocos = blocos;
+        renderBlocos();
+    }
+
+    function filterBlocos() {
+        const showPastEvents = document.getElementById("past-events").checked;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        return allBlocos.filter((bloco) => {
+            const blocoDate = new Date(bloco.event_date);
+            blocoDate.setHours(0, 0, 0, 0);
+            return showPastEvents || blocoDate >= today;
+        });
+    }
+
+	function updateMarkers(blocos) {
 		clearMarkers();
-		allBlocos = blocos;
-		displayedCount = 5;
-		renderBlocos();
-		blocos.forEach((bloco) => {
-			const marker = L.marker([bloco.latitude, bloco.longitude]).addTo(map);
-			marker.bindPopup(`
-				<h3>${bloco.name}</h3>
-				<p>${bloco.description}</p>
-			`);
-			markers.push(marker);
-		});
+        const filteredBlocos = filterBlocos(); // Filtra os blocos conforme o checkbox
+
+		filteredBlocos.forEach((bloco) => {
+            const marker = L.marker([bloco.latitude, bloco.longitude]).addTo(map);
+            marker.bindPopup(`
+                <h3>${bloco.name}</h3>
+                <p>${bloco.description}</p>
+            `);
+            markers.push(marker);
+        });
 	}
 
 	function renderBlocos() {
         const blocosContainer = document.getElementById("blocos");
         blocosContainer.innerHTML = "";
-    
+
+        const filteredBlocos = filterBlocos(); // Obtém a lista de blocos filtrada
+
         // Agrupa os blocos por data
         const blocosByDate = {};
-        allBlocos.forEach((bloco) => {
+        filteredBlocos.forEach((bloco) => {
             const eventDate = new Date(bloco.event_date);
             const formattedDate = eventDate.toLocaleDateString("pt-BR", {
                 day: "2-digit",
                 month: "2-digit"
             });
             const weekDay = eventDate.toLocaleDateString("pt-BR", { weekday: "long" });
-    
+
             const dateKey = `${formattedDate} (${weekDay})`;
-    
+
             if (!blocosByDate[dateKey]) {
                 blocosByDate[dateKey] = [];
             }
             blocosByDate[dateKey].push(bloco);
         });
-    
-        let blocoCount = 0; // Contador de blocos exibidos
-    
-        // Itera sobre os dias e renderiza os blocos até o limite de displayedCount
+
+        let blocoCount = 0;
+
         Object.entries(blocosByDate).forEach(([dateKey, blocos]) => {
-            if (blocoCount >= displayedCount) return; // Para se já atingiu o limite
-    
+            if (blocoCount >= displayedCount) return;
+
             const dayContainer = document.createElement("div");
             dayContainer.classList.add("day-container");
-    
+
             const dayHeader = document.createElement("h2");
             dayHeader.textContent = dateKey;
             dayContainer.appendChild(dayHeader);
-    
+
             blocos.forEach((bloco) => {
-                if (blocoCount >= displayedCount) return; // Para se já atingiu o limite
-    
+                if (blocoCount >= displayedCount) return;
+
                 const blocoCard = document.createElement("div");
                 blocoCard.classList.add("bloco-card");
-    
+                
+                ticket_content = "";
+                if (bloco.ticket_url) {
+                    ticket_content = `💲 <a href="${bloco.ticket_url}" target="_blank">${bloco.ticket_info}</a>`
+                } else {
+                    ticket_content = `<strong>💲 ${bloco.ticket_info}</strong>`
+                }
+
+                see_more_content = `🔍 <a href="${bloco.event_page_url || "#"}" target="_blank">Ver mais...</a>`
+
+                map_link_content = `🗺️ <a href="${bloco.address_gmaps_url || "#"}" target="_blank">Veja como chegar</a>`
+
+                whatsapp_text = `${dateKey} - ${bloco.event_time} Vai acontecer o bloco ${bloco.name} em ${bloco.neighborhood || bloco.city}. ${bloco.event_page_url}`
+                share_whatsapp_content = `📱 <a href="https://wa.me/?text=${whatsapp_text}" target="_blank">Compartilhar no WhatsApp</a>`
+
+
                 blocoCard.innerHTML = `
                     <div class="bloco-card-container">
                         <div class="bloco-card-time">
@@ -83,32 +115,37 @@ document.addEventListener("DOMContentLoaded", () => {
                         </div>
                         <div class="bloco-card-details">
                             <h3>${bloco.name}</h3>
-                            <p><strong>📍 ${bloco.neighborhood || bloco.city}</strong></p>
-                            <a href="${bloco.ticket_url || "#"}" target="_blank">Site Oficial</a>
+                            <p><strong>📍 ${bloco.neighborhood || bloco.city}</strong> </p>
+                            <p>${ticket_content}</p>
+                            ${see_more_content}  ${map_link_content}  ${share_whatsapp_content}
                         </div>
-                    </div>
-                `;
-    
+                    </div>`
+                ;
+
                 dayContainer.appendChild(blocoCard);
-                blocoCount++; // Incrementa o número de blocos exibidos
+                blocoCount++;
             });
-    
+
             blocosContainer.appendChild(dayContainer);
         });
-    
+
         // Botão "Carregar Mais"
-        if (blocoCount < allBlocos.length) {
+        if (blocoCount < filteredBlocos.length) {
             const loadMoreButton = document.createElement("button");
             loadMoreButton.textContent = "Carregar Mais";
             loadMoreButton.classList.add("load-more");
             loadMoreButton.addEventListener("click", () => {
-                displayedCount += 5; // Carrega mais 5 blocos (e não mais dias)
+                displayedCount += 5;
                 renderBlocos();
             });
             blocosContainer.appendChild(loadMoreButton);
         }
+
+        updateMarkers(); // Atualiza os marcadores no mapa conforme os blocos visíveis
     }
-    
+
+    document.getElementById("past-events").addEventListener("change", renderBlocos);
+
     const blocos = JSON.parse(document.getElementById("blocos-json").textContent);
     loadBlocos(blocos);
     
