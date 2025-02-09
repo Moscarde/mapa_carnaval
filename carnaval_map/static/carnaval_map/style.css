@@ -4,8 +4,8 @@
 :root {
     --pink: #E656A5;
     --dark-blue: #00548A;
-    --white: #F5F3C6;
-    --gray: #E2E2E2;
+    --white: #f7f5da;
+    --light-grey: #E2E2E2;
     --orange: #F9A600;
     
 }
@@ -88,7 +88,7 @@ body {
     color: var(--white);
     font-family: "Bangers", serif;
     display: block;
-    font-size: 1.2rem;
+    font-size: 1.7rem;
 }
 
 .bloco-card-details {
@@ -102,12 +102,13 @@ body {
     color: var(--dark-blue);
     font-family: "Bangers", serif;
     margin: 0;
-    font-size: 1.1em;
+    font-size: 1.4rem;
 }
 
 .bloco-card-details p {
     margin: 5px 0;
     font-size: 0.9em;
+    line-height: 1rem;
 }
 
 .bloco-card-details a {
@@ -119,7 +120,7 @@ body {
 }
 
 .bloco-card-details a:hover {
-    color: var(--gray);
+    color: var(--light-grey);
 }
 
 .load-more {
