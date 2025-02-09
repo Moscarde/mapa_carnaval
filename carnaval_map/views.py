@@ -23,6 +23,7 @@ class CarnavalMapView(View):
             "latitude",
             "longitude",
             "neighborhood",
+            "event_page_url",
         ).order_by("event_date")
 
         cities_coords = City.objects.values("name", "avg_latitude", "avg_longitude")
@@ -72,6 +73,8 @@ class FilterBlocosView(View):
                 "longitude",
                 "neighborhood",
                 "ticket_url",
+                "ticket_info",
+                "event_page_url",
             )
         )
 
