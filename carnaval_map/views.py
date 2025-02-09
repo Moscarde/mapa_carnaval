@@ -53,7 +53,7 @@ class FilterBlocosView(View):
         date = request.GET.get("date", "")
         neighborhood = request.GET.get("neighborhood", "")
 
-        blocos_query = Bloco.objects.all()
+        blocos_query = Bloco.objects.all().order_by("event_date")
 
         if city:
             blocos_query = blocos_query.filter(city=city)
