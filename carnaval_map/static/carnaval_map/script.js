@@ -199,7 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         </div>
                         <div class="bloco-card-details">
                             <h3>${bloco.name}</h3>
-                            <p><strong>📍 ${bloco.neighborhood || bloco.city}</strong> </p>
+                            <p><strong>📍 ${bloco.neighborhood || bloco.city} - ${bloco.address || ""}</strong> </p>
                             <p>${ticket_content}</p>
                             ${see_more_content}  ${map_link_content}  ${share_whatsapp_content}
                         </div>

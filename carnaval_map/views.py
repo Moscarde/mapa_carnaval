@@ -24,6 +24,8 @@ class CarnavalMapView(View):
             "longitude",
             "neighborhood",
             "event_page_url",
+            "address_gmaps_url",
+            "address",
         ).order_by("event_date")
 
         cities_coords = City.objects.values("name", "avg_latitude", "avg_longitude")
@@ -75,6 +77,8 @@ class FilterBlocosView(View):
                 "ticket_url",
                 "ticket_info",
                 "event_page_url",
+                "address_gmaps_url",
+                "address",
             )
         )
 
