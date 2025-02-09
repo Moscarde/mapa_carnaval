@@ -3,6 +3,7 @@
 
 :root {
     --pink: #E656A5;
+    --dark-pink: #912a62;
     --dark-blue: #00548A;
     --white: #f7f5da;
     --light-grey: #E2E2E2;
@@ -42,16 +43,21 @@ body {
     color: var(--pink);
     font-size: 4rem;
     font-weight: 400;
-    line-height: 1.2;
+    line-height: 3.4rem;
     text-transform: uppercase;
 
 }
 
-.container__title p {
+.container__title h2 {
     font-family: "Bangers", serif;
     font-size: 2rem;
     font-style: normal;
     font-weight: 200;
+}
+
+#blocos{
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 #blocos h2 {
@@ -63,6 +69,7 @@ body {
 
 .bloco-card {
     display: flex;
+    background: var(--orange);
     align-items: center;
     border-radius: 8px;
     overflow: hidden;
@@ -78,6 +85,7 @@ body {
 .bloco-card-time {
     width: 25%;
     background: var(--pink);
+    border-radius: 8px;
     text-align: center;
     padding: 10px;
     font-size: 1.2em;
@@ -131,16 +139,17 @@ body {
     display: block;
     width: 100%;
     padding: 10px;
-    background: #007bff;
+    background: var(--pink);
     color: white;
     border: none;
     cursor: pointer;
     border-radius: 5px;
     margin-top: 10px;
+    transition: background 0.1s ease-in-out;
 }
 
 .load-more:hover {
-    background: #0056b3;
+    background: var(--dark-pink);
 }
 
 .footer {
