@@ -7,14 +7,19 @@
     --white: #f7f5da;
     --light-grey: #E2E2E2;
     --orange: #F9A600;
-    
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-    margin: 0;
-    padding: 0;
-    background-color: #00548A;
-    color: #F5F3C6;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--dark-blue);
+    color: var(--white);
     font-family: "Roboto", serif;
 }
 
@@ -23,6 +28,9 @@ body {
     width: 100%;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.container {
+    flex: 1; /* Faz com que o conteúdo cresça e empurre o footer para o final */
 }
 
 .container__title {
@@ -137,4 +145,11 @@ body {
 
 .load-more:hover {
     background: #0056b3;
+}
+
+.footer {
+    background: #1e1e1f;
+    padding: 8px 0;
+    text-align: center;
+    width: 100%;
 }
