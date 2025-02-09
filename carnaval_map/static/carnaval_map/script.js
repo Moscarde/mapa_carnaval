@@ -8,6 +8,14 @@ document.addEventListener("DOMContentLoaded", () => {
 		return map;
 	}
 
+	const houseIcon = L.AwesomeMarkers.icon({
+		markerColor: "orange",
+		iconColor: "white",
+		icon: "house",
+		prefix: "fa",
+		extraClasses: "fa-rotate-0"
+	});
+
 	const map = createMap([-22.85, -43.28], 12);
 	const cities_coords = JSON.parse(document.getElementById("cities_coords").textContent);
 
@@ -20,95 +28,94 @@ document.addEventListener("DOMContentLoaded", () => {
 		markers = [];
 	}
 
-    function loadBlocos(blocos) {
-        allBlocos = blocos;
-        renderBlocos();
-    }
+	function loadBlocos(blocos) {
+		allBlocos = blocos;
+		renderBlocos();
+	}
 
-    function filterBlocos() {
-        const showPastEvents = document.getElementById("past-events").checked;
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+	function filterBlocos() {
+		const showPastEvents = document.getElementById("past-events").checked;
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
 
-        return allBlocos.filter((bloco) => {
-            const blocoDate = new Date(bloco.event_date);
-            blocoDate.setHours(0, 0, 0, 0);
-            return showPastEvents || blocoDate >= today;
-        });
-    }
+		return allBlocos.filter((bloco) => {
+			const blocoDate = new Date(bloco.event_date);
+			blocoDate.setHours(0, 0, 0, 0);
+			return showPastEvents || blocoDate >= today;
+		});
+	}
 
 	function updateMarkers(blocos) {
 		clearMarkers();
-        const filteredBlocos = filterBlocos(); // Filtra os blocos conforme o checkbox
+		const filteredBlocos = filterBlocos(); // Filtra os blocos conforme o checkbox
 
 		filteredBlocos.forEach((bloco) => {
-            const marker = L.marker([bloco.latitude, bloco.longitude]).addTo(map);
-            marker.bindPopup(`
+			const marker = L.marker([bloco.latitude, bloco.longitude], { icon: houseIcon }).addTo(map);
+			marker.bindPopup(`
                 <h3>${bloco.name}</h3>
                 <p>${bloco.description}</p>
             `);
-            markers.push(marker);
-        });
+			markers.push(marker);
+		});
 	}
 
 	function renderBlocos() {
-        const blocosContainer = document.getElementById("blocos");
-        blocosContainer.innerHTML = "";
+		const blocosContainer = document.getElementById("blocos");
+		blocosContainer.innerHTML = "";
 
-        const filteredBlocos = filterBlocos(); // Obtém a lista de blocos filtrada
+		const filteredBlocos = filterBlocos(); // Obtém a lista de blocos filtrada
 
-        // Agrupa os blocos por data
-        const blocosByDate = {};
-        filteredBlocos.forEach((bloco) => {
-            const eventDate = new Date(bloco.event_date);
-            const formattedDate = eventDate.toLocaleDateString("pt-BR", {
-                day: "2-digit",
-                month: "2-digit"
-            });
-            const weekDay = eventDate.toLocaleDateString("pt-BR", { weekday: "long" });
+		// Agrupa os blocos por data
+		const blocosByDate = {};
+		filteredBlocos.forEach((bloco) => {
+			const eventDate = new Date(bloco.event_date);
+			const formattedDate = eventDate.toLocaleDateString("pt-BR", {
+				day: "2-digit",
+				month: "2-digit"
+			});
+			const weekDay = eventDate.toLocaleDateString("pt-BR", { weekday: "long" });
 
-            const dateKey = `${formattedDate} (${weekDay})`;
+			const dateKey = `${formattedDate} (${weekDay})`;
 
-            if (!blocosByDate[dateKey]) {
-                blocosByDate[dateKey] = [];
-            }
-            blocosByDate[dateKey].push(bloco);
-        });
+			if (!blocosByDate[dateKey]) {
+				blocosByDate[dateKey] = [];
+			}
+			blocosByDate[dateKey].push(bloco);
+		});
 
-        let blocoCount = 0;
+		let blocoCount = 0;
 
-        Object.entries(blocosByDate).forEach(([dateKey, blocos]) => {
-            if (blocoCount >= displayedCount) return;
+		Object.entries(blocosByDate).forEach(([dateKey, blocos]) => {
+			if (blocoCount >= displayedCount) return;
 
-            const dayContainer = document.createElement("div");
-            dayContainer.classList.add("day-container");
+			const dayContainer = document.createElement("div");
+			dayContainer.classList.add("day-container");
 
-            const dayHeader = document.createElement("h2");
-            dayHeader.textContent = dateKey;
-            dayContainer.appendChild(dayHeader);
+			const dayHeader = document.createElement("h2");
+			dayHeader.textContent = dateKey;
+			dayContainer.appendChild(dayHeader);
 
-            blocos.forEach((bloco) => {
-                if (blocoCount >= displayedCount) return;
+			blocos.forEach((bloco) => {
+				if (blocoCount >= displayedCount) return;
 
-                const blocoCard = document.createElement("div");
-                blocoCard.classList.add("bloco-card");
-                
-                ticket_content = "";
-                if (bloco.ticket_url) {
-                    ticket_content = `💲 <a href="${bloco.ticket_url}" target="_blank">${bloco.ticket_info}</a>`
-                } else {
-                    ticket_content = `<strong>💲 ${bloco.ticket_info}</strong>`
-                }
+				const blocoCard = document.createElement("div");
+				blocoCard.classList.add("bloco-card");
 
-                see_more_content = `🔍 <a href="${bloco.event_page_url || "#"}" target="_blank">Ver mais...</a>`
+				ticket_content = "";
+				if (bloco.ticket_url) {
+					ticket_content = `💲 <a href="${bloco.ticket_url}" target="_blank">${bloco.ticket_info}</a>`;
+				} else {
+					ticket_content = `<strong>💲 ${bloco.ticket_info}</strong>`;
+				}
 
-                map_link_content = `🗺️ <a href="${bloco.address_gmaps_url || "#"}" target="_blank">Veja como chegar</a>`
+				see_more_content = `🔍 <a href="${bloco.event_page_url || "#"}" target="_blank">Ver mais...</a>`;
 
-                whatsapp_text = `${dateKey} - ${bloco.event_time} Vai acontecer o bloco ${bloco.name} em ${bloco.neighborhood || bloco.city}. ${bloco.event_page_url}`
-                share_whatsapp_content = `📱 <a href="https://wa.me/?text=${whatsapp_text}" target="_blank">Compartilhar no WhatsApp</a>`
+				map_link_content = `🗺️ <a href="${bloco.address_gmaps_url || "#"}" target="_blank">Veja como chegar</a>`;
 
+				whatsapp_text = `${dateKey} - ${bloco.event_time} Vai acontecer o bloco ${bloco.name} em ${bloco.neighborhood || bloco.city}. ${bloco.event_page_url}`;
+				share_whatsapp_content = `📱 <a href="https://wa.me/?text=${whatsapp_text}" target="_blank">Compartilhar no WhatsApp</a>`;
 
-                blocoCard.innerHTML = `
+				blocoCard.innerHTML = `
                     <div class="bloco-card-container">
                         <div class="bloco-card-time">
                             <span>${bloco.event_time || "Horário não informado"}</span>
@@ -119,37 +126,34 @@ document.addEventListener("DOMContentLoaded", () => {
                             <p>${ticket_content}</p>
                             ${see_more_content}  ${map_link_content}  ${share_whatsapp_content}
                         </div>
-                    </div>`
-                ;
+                    </div>`;
 
-                dayContainer.appendChild(blocoCard);
-                blocoCount++;
-            });
+				dayContainer.appendChild(blocoCard);
+				blocoCount++;
+			});
 
-            blocosContainer.appendChild(dayContainer);
-        });
+			blocosContainer.appendChild(dayContainer);
+		});
 
-        // Botão "Carregar Mais"
-        if (blocoCount < filteredBlocos.length) {
-            const loadMoreButton = document.createElement("button");
-            loadMoreButton.textContent = "Carregar Mais";
-            loadMoreButton.classList.add("load-more");
-            loadMoreButton.addEventListener("click", () => {
-                displayedCount += 5;
-                renderBlocos();
-            });
-            blocosContainer.appendChild(loadMoreButton);
-        }
+		// Botão "Carregar Mais"
+		if (blocoCount < filteredBlocos.length) {
+			const loadMoreButton = document.createElement("button");
+			loadMoreButton.textContent = "Carregar Mais";
+			loadMoreButton.classList.add("load-more");
+			loadMoreButton.addEventListener("click", () => {
+				displayedCount += 5;
+				renderBlocos();
+			});
+			blocosContainer.appendChild(loadMoreButton);
+		}
 
-        updateMarkers(); // Atualiza os marcadores no mapa conforme os blocos visíveis
-    }
+		updateMarkers(); // Atualiza os marcadores no mapa conforme os blocos visíveis
+	}
 
-    document.getElementById("past-events").addEventListener("change", renderBlocos);
+	document.getElementById("past-events").addEventListener("change", renderBlocos);
 
-    const blocos = JSON.parse(document.getElementById("blocos-json").textContent);
-    loadBlocos(blocos);
-    
-    
+	const blocos = JSON.parse(document.getElementById("blocos-json").textContent);
+	loadBlocos(blocos);
 
 	function updateDateFilter(dates) {
 		const dateSelect = document.getElementById("date");
