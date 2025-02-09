@@ -10,7 +10,8 @@
     --orange: #F9A600;
 }
 
-html, body {
+html,
+body {
     height: 100%;
     margin: 0;
     padding: 0;
@@ -30,8 +31,10 @@ body {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
 .container {
-    flex: 1; /* Faz com que o conteúdo cresça e empurre o footer para o final */
+    flex: 1;
+    /* Faz com que o conteúdo cresça e empurre o footer para o final */
 }
 
 .container__title {
@@ -55,7 +58,7 @@ body {
     font-weight: 200;
 }
 
-#blocos{
+#blocos {
     max-width: 800px;
     margin: 0 auto;
 }
@@ -157,4 +160,13 @@ body {
     padding: 8px 0;
     text-align: center;
     width: 100%;
+}
+
+.marker-popup h3 {
+    color: var(--dark-blue);
+    font-family: "Bangers", serif;
+}
+
+.marker-popup p {
+    margin: 0;
 }
