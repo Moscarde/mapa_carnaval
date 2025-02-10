@@ -69,9 +69,9 @@ O projeto é composto por duas principais aplicações Django:
     pip install -r requirements.txt
 ```
 
-3. Configure a chave da API do Google Geocoding no arquivo .env:
+3. (Opcional) Configure a chave da API do Google Geocoding no arquivo .env:
 ```bash
-    API_KEY=*
+    API_KEY=****
 ```
 
 4. Execute as migrações:
