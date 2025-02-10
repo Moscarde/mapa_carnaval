@@ -1,5 +1,9 @@
 # Mapa de Blocos de Carnaval 2025
 
+<div align="center">
+  <img src="screenshots/header.gif" alt="Header">
+</div>
+
 Este projeto é uma aplicação web desenvolvida em Django que permite explorar os blocos de carnaval de 2025 diretamente em um mapa interativo. A aplicação utiliza técnicas de web scraping para coletar dados de eventos, integração com a API do Google Geocoding para processamento de coordenadas e JavaScript para a renderização dinâmica do mapa e filtros.
 
 ## Funcionalidades
