@@ -1,8 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+    --pink: #E656A5;
+    --dark-pink: #912a62;
+    --dark-blue: #00548A;
+    --white: #f7f5da;
+    --light-grey: #E2E2E2;
+    --orange: #F9A600;
+}
+
+html,
 body {
+    height: 100%;
     margin: 0;
     padding: 0;
-    background-color: #e42f27;
-    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--dark-blue);
+    color: var(--white);
+    font-family: "Roboto", serif;
 }
 
 #map {
@@ -12,18 +32,141 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.container {
+    flex: 1;
+    /* Faz com que o conteúdo cresça e empurre o footer para o final */
+}
+
 .container__title {
-    color: #ffdc2e;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .container__title h1 {
-    font-size: calc(1.375rem + 1.5vw);
-    font-weight: 500;
-    line-height: 1.2;
+    font-family: "Bangers", serif;
+    color: var(--pink);
+    font-size: 4rem;
+    font-weight: 400;
+    line-height: 3.4rem;
+    text-transform: uppercase;
+
 }
 
-.container__title p {
-    font-size: calc(1rem + 0.5vw);
-    font-weight: 400;
+.container__title h2 {
+    font-family: "Bangers", serif;
+    font-size: 2rem;
+    font-style: normal;
+    font-weight: 200;
+}
+
+#blocos {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+#blocos h2 {
+    font-family: "Bangers", serif;
+    font-size: 2rem;
+    font-style: normal;
+    font-weight: 200;
+}
+
+.bloco-card {
+    display: flex;
+    background: var(--orange);
+    align-items: center;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+}
+
+.bloco-card-container {
+    display: flex;
+    width: 100%;
+}
+
+.bloco-card-time {
+    width: 25%;
+    background: var(--pink);
+    border-radius: 8px;
+    text-align: center;
+    padding: 10px;
+    font-size: 1.2em;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.bloco-card-time span {
+    color: var(--white);
+    font-family: "Bangers", serif;
+    display: block;
+    font-size: 1.7rem;
+}
+
+.bloco-card-details {
+    width: 75%;
+    background: var(--orange);
+    color: var(--white);
+    padding: 10px 15px;
+}
+
+.bloco-card-details h3 {
+    color: var(--dark-blue);
+    font-family: "Bangers", serif;
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+.bloco-card-details p {
+    margin: 5px 0;
+    font-size: 0.9em;
+    line-height: 1rem;
+}
+
+.bloco-card-details a {
+    display: inline-block;
+    margin-top: 5px;
+    color: var(--white);
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.bloco-card-details a:hover {
+    color: var(--light-grey);
+}
+
+.load-more {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: var(--pink);
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px;
+    transition: background 0.1s ease-in-out;
+}
+
+.load-more:hover {
+    background: var(--dark-pink);
+}
+
+.footer {
+    background: #1e1e1f;
+    padding: 8px 0;
+    text-align: center;
+    width: 100%;
+}
+
+.marker-popup h3 {
+    color: var(--dark-blue);
+    font-family: "Bangers", serif;
+}
+
+.marker-popup p {
+    margin: 0;
 }

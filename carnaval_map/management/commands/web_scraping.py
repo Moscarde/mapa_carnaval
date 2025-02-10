@@ -1,6 +1,6 @@
 # %%
-import os
 import time
+import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 
@@ -15,13 +15,8 @@ from django.db.models import Max, Min
 
 from carnaval_map.models import Bloco, City, RawBloco
 
-# from get_coords import process_addresses
 
 BASE_URL = "https://www.blocosderua.com/"
-DATA_DIR = "data"
-EVENTS_CSV = os.path.join(DATA_DIR, "event_links.csv")
-EVENTS_RAW_DIR = os.path.join(DATA_DIR, "events_data_raw")
-EVENTS_PROCESSED_CSV = os.path.join(DATA_DIR, "event_data.csv")
 
 API_KEY = config("API_KEY")
 gmaps = googlemaps.Client(key=API_KEY)
@@ -30,6 +25,12 @@ gmaps = googlemaps.Client(key=API_KEY)
 
 
 def get_cities_urls():
+    """
+    Fetches the URLs of cities from the base website.
+
+    Returns:
+        list: A list of city URLs or an empty list if an error occurs.
+    """
     try:
         response = requests.get(BASE_URL)
         response.raise_for_status()
@@ -46,6 +47,15 @@ def get_cities_urls():
 
 
 def get_city_full_page_url(city_url):
+    """
+    Retrieves the full page URL for a given city URL.
+
+    Args:
+        city_url (str): The URL of the city.
+
+    Returns:
+        str: The full page URL or None if an error occurs.
+    """
     try:
         response = requests.get(city_url)
         response.raise_for_status()
@@ -63,6 +73,15 @@ def get_city_full_page_url(city_url):
 
 
 def get_city_events_links(city_url):
+    """
+    Fetches all event links for a given city URL.
+
+    Args:
+        city_url (str): The URL of the city.
+
+    Returns:
+        list: A list of event links or an empty list if no links are found.
+    """
     full_page_url = get_city_full_page_url(city_url)
     if not full_page_url:
         return []
@@ -95,6 +114,12 @@ def get_city_events_links(city_url):
 
 
 def get_events_links():
+    """
+    Fetches event links for all cities.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing city and event URLs, or None if no new events are found.
+    """
     print("Getting events from cities urls...")
 
     cities_urls = get_cities_urls()
@@ -120,15 +145,17 @@ def get_events_links():
 
     return None
 
-    # print("Saving events links...")
-    # if os.path.exists(EVENTS_CSV):
-    #     df_existing = pd.read_csv(EVENTS_CSV)
-    #     df_city = pd.concat([df_existing, df_city]).drop_duplicates(subset="event_link")
-
-    # df_city.to_csv(EVENTS_CSV, mode="w", header=True, index=False)
-
-
 def fetch_event_page(city, url):
+    """
+    Fetches and parses event data from a given URL.
+
+    Args:
+        city (str): The city associated with the event.
+        url (str): The URL of the event page.
+
+    Returns:
+        dict: A dictionary containing event data or None if an error occurs.
+    """
     try:
         response = requests.get(url, timeout=10)
         response.raise_for_status()
@@ -180,6 +207,13 @@ def fetch_event_page(city, url):
         )
         data["event_time"] = data["event_time"].split(" ")[0]
 
+        match = re.search(r"\d{2}/\d{2}/\d{4} - .*? - \d{2}:\d{2}\s*(.*)", data["subtitle"])
+        
+        if match:
+            data["neighborhood"] = match.group(1).strip()
+        else:
+            data["neighborhood"] = None
+
         return data
 
     except Exception as e:
@@ -188,6 +222,13 @@ def fetch_event_page(city, url):
 
 
 def process_links(df, max_workers=3):
+    """
+    Processes event links in parallel using ThreadPoolExecutor.
+
+    Args:
+        df (pd.DataFrame): A DataFrame containing city and event URLs.
+        max_workers (int): The maximum number of worker threads.
+    """
     print("Processing links... (Parallel)")
     with ThreadPoolExecutor(max_workers) as executor:
         futures = {
@@ -217,10 +258,13 @@ def process_links(df, max_workers=3):
 
 def get_coordinates(address):
     """
-    Obtém latitude e longitude de um endereço usando a API do Google Maps.
+    Retrieves latitude and longitude for a given address using the Google Maps API.
 
-    :param address: String com o endereço a ser buscado.
-    :return: Tupla (latitude, longitude) ou None em caso de erro.
+    Args:
+        address (str): The address to geocode.
+
+    Returns:
+        tuple: A tuple containing (latitude, longitude) or None if an error occurs.
     """
     try:
         geocode_result = gmaps.geocode(address)
@@ -233,6 +277,12 @@ def get_coordinates(address):
 
 
 def process_addresses(delay=1):
+    """
+    Processes raw blocos to extract coordinates and save them to the Bloco model.
+
+    Args:
+        delay (int): Delay between requests to avoid rate limiting.
+    """
     print("Processing addresses")
     raw_blocos = RawBloco.objects.filter(processed=False)
 
@@ -273,6 +323,7 @@ def process_addresses(delay=1):
                 ticket_info=raw_bloco.ticket_info,
                 ticket_url=raw_bloco.ticket_url,
                 address=raw_bloco.address,
+                neighborhood=raw_bloco.neighborhood,
                 address_gmaps_url=raw_bloco.address_gmaps_url,
                 event_page_url=raw_bloco.event_page_url,
                 event_date=raw_bloco.event_date,
@@ -292,7 +343,9 @@ def process_addresses(delay=1):
 
 
 def update_city_coordinates():
-    """Lê os blocos cadastrados e calcula as coordenadas médias para cada cidade."""
+    """
+    Updates the average coordinates for each city based on the Bloco model.
+    """
 
     cities = Bloco.objects.values_list("city", flat=True).distinct()
 
@@ -331,7 +384,11 @@ def update_city_coordinates():
 
 
 class Command(BaseCommand):
-    help = "Cria objetos no modelo Locations a partir de um arquivo CSV"
+    """
+    Django management command to fetch and process event data.
+    """
+
+    help = "Creates objects in the Locations model from a CSV file"
 
     def handle(self, *args, **options):
         df = get_events_links()
